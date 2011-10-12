@@ -30,7 +30,7 @@ module Markaby
   # All the tags and attributes from XHTML 1.0 Strict
   class XHTMLStrict
     class << self
-      attr_accessor :tags, :tagset, :forms, :self_closing, :doctype
+      attr_accessor :tags, :tagset, :forms, :self_closing, :doctype, :output_xml_instruction, :root_attributes
     end
 
     @doctype = ['-//W3C//DTD XHTML 1.0 Strict//EN', 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd']
@@ -122,7 +122,7 @@ module Markaby
   # Additional tags found in XHTML 1.0 Transitional
   class XHTMLTransitional
     class << self
-      attr_accessor :tags, :tagset, :forms, :self_closing, :doctype
+      attr_accessor :tags, :tagset, :forms, :self_closing, :doctype, :output_xml_instruction, :root_attributes
     end
 
     @doctype = ['-//W3C//DTD XHTML 1.0 Transitional//EN', 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd']
@@ -184,7 +184,7 @@ module Markaby
   # Additional tags found in XHTML 1.0 Frameset
   class XHTMLFrameset
     class << self
-      attr_accessor :tags, :tagset, :forms, :self_closing, :doctype
+      attr_accessor :tags, :tagset, :forms, :self_closing, :doctype, :output_xml_instruction, :root_attributes
     end
 
     @doctype = ['-//W3C//DTD XHTML 1.0 Frameset//EN', 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd']
@@ -197,4 +197,41 @@ module Markaby
     @forms = @tags & FORM_TAGS
     @self_closing = @tags & SELF_CLOSING_TAGS
   end
-end
+
+  # start working towards robust HTML5 support in MArkaby
+  class HTMLFIVE
+    class << self
+      attr_accessor :tags, :tagset, :forms, :self_closing, :doctype, :output_xml_instruction, :root_attributes
+    end
+
+    @output_xml_instruction = false
+    @root_attributes = { :lang => 'en' } # obviously this will be changed with i18n
+    # do not override doctype
+    @tagset = XHTMLTransitional.tagset.merge({
+        :abbr => Attrs,
+        :article => Attrs,
+        :aside => Attrs,
+        :audio => Attrs,
+        :canvas => Attrs,
+        :datalist => Attrs,
+        :details => Attrs,
+        :figure => Attrs,
+        :footer => Attrs,
+        :header => Attrs,
+        :hgroup => Attrs,
+        :mark => Attrs,
+        :menu => Attrs,
+        :meter => Attrs,
+        :nav => Attrs,
+        :output => Attrs,
+        :progress => Attrs,
+        :section => Attrs,
+        :time => Attrs,
+        :video => Attrs
+    })
+
+    @tags = @tagset.keys
+    @forms = @tags & FORM_TAGS
+    @self_closing = @tags & SELF_CLOSING_TAGS
+  end
+end # Module Markaby

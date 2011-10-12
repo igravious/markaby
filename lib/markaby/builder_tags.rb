@@ -37,28 +37,39 @@ module Markaby
     # are prepended.  Also assumes <tt>:xmlns => "http://www.w3.org/1999/xhtml",
     # :lang => "en"</tt>.
     def xhtml_transitional(attrs = {}, &block)
-      self.tagset = Markaby::XHTMLTransitional
+      self.html_variant = self.tagset = Markaby::XHTMLTransitional
       xhtml_html(attrs, &block)
     end
 
     # Builds an html tag with XHTML 1.0 Strict doctype instead.
     def xhtml_strict(attrs = {}, &block)
-      self.tagset = Markaby::XHTMLStrict
+      self.html_variant = self.tagset = Markaby::XHTMLStrict
       xhtml_html(attrs, &block)
     end
 
     # Builds an html tag with XHTML 1.0 Frameset doctype instead.
     def xhtml_frameset(attrs = {}, &block)
-      self.tagset = Markaby::XHTMLFrameset
+      self.html_variant = self.tagset = Markaby::XHTMLFrameset
+      xhtml_html(attrs, &block)
+    end
+
+    # Builds an html tag with HTML5 doctype instead
+    def html_five(attrs ={}, &block)
+      self.html_variant = self.tagset = Markaby::HTMLFIVE
       xhtml_html(attrs, &block)
     end
 
   private
 
     def xhtml_html(attrs = {}, &block)
-      instruct! if @output_xml_instruction
-      declare!(:DOCTYPE, :html, :PUBLIC, *tagset.doctype)
-      tag!(:html, @root_attributes.merge(attrs), &block)
+      # use DEFAULT option if not overridden
+      output_xml_instruction = html_variant.output_xml_instruction.nil? ? @output_xml_instruction : html_variant.output_xml_instruction
+      instruct! if output_xml_instruction
+      doctype = html_variant.doctype.nil? ? @doctype : html_variant.doctype
+      doctype = doctype.length.zero? ? nil : [:PUBLIC, doctype].flatten
+      declare!(:DOCTYPE, :html, *doctype)
+      root_attributes = html_variant.root_attributes.nil? ? @root_attributes : html_variant.root_attributes
+      tag!(:html, root_attributes.merge(attrs), &block)
     end
   end
 end

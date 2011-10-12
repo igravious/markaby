@@ -30,6 +30,7 @@ module Markaby
       :output_xml_instruction => true,
       :output_meta_tag        => true,
       :auto_validation        => true,
+      :doctype                => [],
       :tagset                 => Markaby::XHTMLTransitional,
       :root_attributes => {
         :xmlns      => 'http://www.w3.org/1999/xhtml',
@@ -60,7 +61,7 @@ module Markaby
       ignored_helpers.concat helpers
     end
 
-    attr_accessor :output_helpers, :tagset
+    attr_accessor :output_helpers, :tagset, :html_variant
 
     # Create a Markaby builder object.  Pass in a hash of variable assignments to
     # +assigns+ which will be available as instance variables inside tag construction
