@@ -1,6 +1,6 @@
 module Markaby
   module BuilderTags
-    (XHTMLTransitional.tags - [:head]).each do |k|
+    (HTMLFIVE.tags - [:head]).each do |k|
       class_eval <<-CODE, __FILE__, __LINE__
         def #{k}(*args, &block)
           html_tag(#{k.inspect}, *args, &block)
@@ -28,7 +28,13 @@ module Markaby
     # set to <tt>text/html; charset=utf-8</tt>.
     def head(*args, &block)
       tag!(:head, *args) do
-        tag!(:meta, "http-equiv" => "Content-Type", "content" => "text/html; charset=utf-8") if @output_meta_tag
+        if @output_meta_tag
+	  if @tagset == Markaby::HTMLFIVE
+	    tag!(:meta, "charset" => "utf-8")
+	  else
+	    tag!(:meta, "http-equiv" => "Content-Type", "content" => "text/html; charset=utf-8")
+	  end
+	end
         instance_eval(&block)
       end
     end
@@ -38,30 +44,30 @@ module Markaby
     # :lang => "en"</tt>.
     def xhtml_transitional(attrs = {}, &block)
       self.html_variant = self.tagset = Markaby::XHTMLTransitional
-      xhtml_html(attrs, &block)
+      xhtml_html(attrs, [], &block)
     end
 
     # Builds an html tag with XHTML 1.0 Strict doctype instead.
     def xhtml_strict(attrs = {}, &block)
       self.html_variant = self.tagset = Markaby::XHTMLStrict
-      xhtml_html(attrs, &block)
+      xhtml_html(attrs, [], &block)
     end
 
     # Builds an html tag with XHTML 1.0 Frameset doctype instead.
     def xhtml_frameset(attrs = {}, &block)
       self.html_variant = self.tagset = Markaby::XHTMLFrameset
-      xhtml_html(attrs, &block)
+      xhtml_html(attrs, [], &block)
     end
 
     # Builds an html tag with HTML5 doctype instead
-    def html_five(attrs ={}, &block)
+    def html_five(attrs ={}, comments = [], &block)
       self.html_variant = self.tagset = Markaby::HTMLFIVE
-      xhtml_html(attrs, &block)
+      xhtml_html(attrs, comments, &block)
     end
 
   private
 
-    def xhtml_html(attrs = {}, &block)
+    def xhtml_html(attrs = {}, comments = [], &block)
       # use DEFAULT option if not overridden
       output_xml_instruction = html_variant.output_xml_instruction.nil? ? @output_xml_instruction : html_variant.output_xml_instruction
       instruct! if output_xml_instruction
@@ -69,6 +75,9 @@ module Markaby
       doctype = doctype.length.zero? ? nil : [:PUBLIC, doctype].flatten
       declare!(:DOCTYPE, :html, *doctype)
       root_attributes = html_variant.root_attributes.nil? ? @root_attributes : html_variant.root_attributes
+      comments.each do |text|
+      	comment! text
+      end
       tag!(:html, root_attributes.merge(attrs), &block)
     end
   end
