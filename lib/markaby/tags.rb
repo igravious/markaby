@@ -142,7 +142,7 @@ module Markaby
     })
 
     # Additional attributes found in XHTML 1.0 Transitional
-    additional_tags = {
+    additional_attrs = {
       :script => [:language],
       :a      => [:target],
       :td     => [:bgcolor, :nowrap, :width, :height],
@@ -172,7 +172,7 @@ module Markaby
       :h1     => [:align]
     }
 
-    additional_tags.each do |k, v|
+    additional_attrs.each do |k, v|
       @tagset[k] += v
     end
 
@@ -229,6 +229,43 @@ module Markaby
         :time => Attrs,
         :video => Attrs
     })
+
+    # http://www.w3.org/TR/html5-diff/
+    #
+    # The elements in this section are not to be used by authors.
+    # User agents will still have to support them and various sections in HTML5 define how.
+    # E.g. the obsolete isindex element is handled by the parser section.
+    #
+    # The following elements are not in HTML5 because their effect is purely presentational and their function is better handled by CSS:
+
+    # unmerge?
+    @tagset.delete_if { |k, v| [:basefont, :big, :center, :font, :strike, :tt].include? k }
+
+    # The following elements are not in HTML5 because using them damages usability and accessibility:
+
+    @tagset.delete_if { |k, v| [:frame, :frameset, :noframes].include? k }
+
+    # The following elements are not included because they have not been used often, created confusion, or their function can be handled by other elements:
+    #
+    # acronym is not included because it has created a lot of confusion. Authors are to use abbr for abbreviations.
+    # applet has been obsoleted in favor of object.
+    # isindex usage can be replaced by usage of form controls.
+    # dir has been obsoleted in favor of ul.
+    
+    @tagset.delete_if { |k, v| [:acronym, :applet, :isindex, :dir].include? k }
+
+    # Finally the noscript element is only conforming in the HTML syntax. It is not included in the XML syntax as its usage relies on an HTML parser.
+    # (whatever that means)
+
+    # Additional attributes found in HTML 5
+    additional_attrs = {
+      :div => [:role],
+      :meta => [:charset]
+    }
+
+    additional_attrs.each do |k, v|
+      @tagset[k] += v
+    end
 
     @tags = @tagset.keys
     @forms = @tags & FORM_TAGS
