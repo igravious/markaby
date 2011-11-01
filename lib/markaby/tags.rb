@@ -260,7 +260,8 @@ module Markaby
     # Additional attributes found in HTML 5
     additional_attrs = {
       :div => [:role],
-      :meta => [:charset]
+      :meta => [:charset],
+      :html => [:class]
     }
 
     additional_attrs.each do |k, v|
